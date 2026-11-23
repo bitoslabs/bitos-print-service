@@ -26,7 +26,7 @@ internal sealed class TrayApplicationContext : ApplicationContext
     {
         _trayIcon = new NotifyIcon
         {
-            Icon = SystemIcons.Application,
+            Icon = Icon.ExtractAssociatedIcon(Application.ExecutablePath) ?? SystemIcons.Application,
             Text = "BNOS & BDGO OS Print Service",
             Visible = true,
             ContextMenuStrip = _menu

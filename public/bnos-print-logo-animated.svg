@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-labelledby="title">
+  <title id="title">BNOS &amp; BitOS Print Service Logo</title>
+  <defs>
+    <linearGradient id="bitos_gold" x1="48" y1="60" x2="208" y2="210" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#f7b506"/>
+      <stop offset="0.52" stop-color="#f59f10"/>
+      <stop offset="1" stop-color="#f28919"/>
+    </linearGradient>
+    <clipPath id="receipt_slot">
+      <rect x="64" y="12" width="128" height="106" rx="6"/>
+    </clipPath>
+    <style>
+      .printer-bob {
+        transform-origin: 128px 144px;
+        animation: printer-bob 4.2s cubic-bezier(0.37, 0, 0.63, 1) infinite;
+      }
+      .receipt-feed {
+        animation: receipt-feed 2.8s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+      }
+      .status-dot {
+        animation: status-pulse 1.8s ease-in-out infinite;
+      }
+      @keyframes printer-bob {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-3px); }
+      }
+      @keyframes receipt-feed {
+        0%, 100% { transform: translateY(4px); }
+        50% { transform: translateY(-4px); }
+      }
+      @keyframes status-pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.45; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .printer-bob, .receipt-feed, .status-dot { animation: none; }
+      }
+    </style>
+  </defs>
+
+  <g class="printer-bob">
+    <!-- Thermal Receipt emerging from top slot -->
+    <g clip-path="url(#receipt_slot)">
+      <g class="receipt-feed">
+        <path d="M78 118 L78 34 C78 27 83 22 90 22 L166 22 C173 22 178 27 178 34 L178 118 Z"
+              fill="#ffffff" stroke="#000000" stroke-width="11" stroke-linejoin="round"/>
+        <!-- Mini BitOS Hex mark on receipt -->
+        <polygon points="128,38 142,46 142,62 128,70 114,62 114,46"
+                 fill="url(#bitos_gold)" stroke="#000000" stroke-width="5" stroke-linejoin="round"/>
+        <!-- Receipt lines -->
+        <line x1="96" y1="84" x2="160" y2="84" stroke="#000000" stroke-width="7" stroke-linecap="round"/>
+        <line x1="96" y1="100" x2="142" y2="100" stroke="#000000" stroke-width="7" stroke-linecap="round"/>
+      </g>
+    </g>
+
+    <!-- Printer Body (BitOS Gold) -->
+    <rect x="34" y="106" width="188" height="108" rx="26"
+          fill="url(#bitos_gold)" stroke="#000000" stroke-width="12" stroke-linejoin="round"/>
+
+    <!-- Top Paper Exit Slot -->
+    <rect x="66" y="106" width="124" height="14" rx="7" fill="#000000"/>
+
+    <!-- Front Control Panel -->
+    <rect x="54" y="148" width="148" height="44" rx="14"
+          fill="#ffffff" stroke="#000000" stroke-width="9" stroke-linejoin="round"/>
+
+    <!-- Paper Tear / Output Line -->
+    <line x1="72" y1="170" x2="142" y2="170" stroke="#000000" stroke-width="8" stroke-linecap="round"/>
+
+    <!-- Status LED -->
+    <circle class="status-dot" cx="176" cy="170" r="9" fill="#16a34a" stroke="#000000" stroke-width="4"/>
+  </g>
+</svg>
