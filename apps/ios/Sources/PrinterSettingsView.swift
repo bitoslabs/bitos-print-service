@@ -1,4 +1,7 @@
 import SwiftUI
+#if canImport(UIKit)
+import UIKit
+#endif
 
 public struct PrinterSettingsView: View {
     @ObservedObject private var store: PrinterStore
@@ -50,6 +53,10 @@ public struct PrinterSettingsView: View {
                                         .foregroundColor(.secondary)
                                 }
                                 Spacer()
+                                Button("Copy") {
+                                    copyWebConfig(printer)
+                                }
+                                .buttonStyle(.bordered)
                                 Button("Test") {
                                     runTestPrint(printer)
                                 }
@@ -111,6 +118,14 @@ public struct PrinterSettingsView: View {
                 }
             }
         }
+    }
+
+    private func copyWebConfig(_ printer: PrinterConfig) {
+        let deeplink = "bnos-print://print?ip=\(printer.ip)&port=\(printer.port)"
+        #if canImport(UIKit)
+        UIPasteboard.general.string = deeplink
+        #endif
+        statusMessage = "Copied Web BNOS deeplink: \(deeplink)"
     }
 
     private func runTestPrint(_ printer: PrinterConfig) {

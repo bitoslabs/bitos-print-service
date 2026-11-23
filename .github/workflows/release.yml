@@ -1,0 +1,247 @@
+name: Build & Release All Platforms
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.meta.outputs.tag }}
+      version: ${{ steps.meta.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Run Web SDK tests
+        run: node --test packages/web-sdk/test/sdk.test.ts
+
+      - name: Run Rust workspace tests
+        run: cargo test --workspace
+
+      - name: Compute release tag & version
+        id: meta
+        shell: bash
+        run: |
+          PKG_VER=$(node -p "require('./package.json').version")
+          if [[ "${GITHUB_REF}" == refs/tags/v* ]]; then
+            TAG="${GITHUB_REF_NAME}"
+          else
+            TAG="v${PKG_VER}.${GITHUB_RUN_NUMBER}"
+          fi
+          echo "version=${PKG_VER}" >> "$GITHUB_OUTPUT"
+          echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
+
+  build-macos:
+    name: Build macOS (.dmg)
+    needs: test
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+
+      - name: Package macOS DMG
+        run: ./scripts/package-macos-dmg.sh
+
+      - name: Prepare release assets
+        run: |
+          mkdir -p release-assets
+          cp dist/BNOSPrint.dmg release-assets/BNOSPrint-macOS.dmg
+          cp target/release/print-daemon release-assets/bnos-print-daemon-macos
+          tar -czf release-assets/bnos-print-daemon-macos.tar.gz -C target/release print-daemon
+          rm -f release-assets/bnos-print-daemon-macos
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-macos
+          path: release-assets/*
+
+  build-windows:
+    name: Build Windows (.exe / .zip)
+    needs: test
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Build print-daemon (Windows x64)
+        run: cargo build --release -p print-daemon
+
+      - name: Publish BNOSPrintTray (Windows x64)
+        run: >
+          dotnet publish apps/desktop/windows/BNOSPrintTray.csproj
+          -c Release
+          -r win-x64
+          --self-contained
+          -p:PublishSingleFile=true
+          -o dist/windows-bundle
+
+      - name: Package Windows bundle
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path release-assets | Out-Null
+          Copy-Item target/release/print-daemon.exe dist/windows-bundle/bnos-print-daemon.exe
+          Copy-Item apps/desktop/windows/install-startup.ps1 dist/windows-bundle/
+          Copy-Item apps/desktop/windows/uninstall-startup.ps1 dist/windows-bundle/
+          Compress-Archive -Path dist/windows-bundle/* -DestinationPath release-assets/BNOSPrint-Windows-x64.zip -Force
+          Copy-Item target/release/print-daemon.exe release-assets/bnos-print-daemon-windows-x64.exe
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-windows
+          path: release-assets/*
+
+  build-linux:
+    name: Build Linux (.tar.gz)
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+
+      - name: Build print-daemon (Linux x64)
+        run: cargo build --release -p print-daemon
+
+      - name: Package Linux bundle
+        run: |
+          mkdir -p dist/linux-bundle release-assets
+          cp target/release/print-daemon dist/linux-bundle/bnos-print-daemon
+          cp apps/desktop/linux/bnos-print.service dist/linux-bundle/
+          cp apps/desktop/linux/99-xprinter.rules dist/linux-bundle/
+          tar -czf release-assets/BNOSPrint-Linux-x64.tar.gz -C dist/linux-bundle .
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-linux
+          path: release-assets/*
+
+  build-android:
+    name: Build Android (.apk)
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: "temurin"
+          java-version: "17"
+
+      - uses: android-actions/setup-android@v3
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.7"
+
+      - name: Build Android APK
+        working-directory: apps/android
+        run: gradle assembleDebug
+
+      - name: Prepare Android release asset
+        run: |
+          mkdir -p release-assets
+          APK_PATH=$(find apps/android/build/outputs/apk -name "*.apk" | head -n 1)
+          cp "$APK_PATH" release-assets/BNOSPrint-Android.apk
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-android
+          path: release-assets/*
+
+  build-ios:
+    name: Verify & Package iOS Sources
+    needs: test
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Typecheck iOS Swift sources
+        run: |
+          swiftc -typecheck -module-cache-path /tmp/swift-module-cache \
+            apps/ios/Sources/DeeplinkRouter.swift \
+            apps/ios/Sources/TcpPrinterTransport.swift \
+            apps/ios/Sources/PrinterStore.swift
+          swiftc -parse apps/ios/Sources/PrinterSettingsView.swift
+
+      - name: Package iOS source bundle
+        run: |
+          mkdir -p release-assets
+          zip -r release-assets/BNOSPrint-iOS-Sources.zip apps/ios
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-ios
+          path: release-assets/*
+
+  build-web-sdk:
+    name: Package Web SDK (.tgz)
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Pack Web SDK
+        run: |
+          mkdir -p release-assets
+          npm pack ./packages/web-sdk --pack-destination release-assets
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-web-sdk
+          path: release-assets/*
+
+  release:
+    name: Publish GitHub Release
+    needs:
+      - test
+      - build-macos
+      - build-windows
+      - build-linux
+      - build-android
+      - build-ios
+      - build-web-sdk
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: true
+
+      - name: Generate SHA256 checksums
+        working-directory: artifacts
+        run: sha256sum * > checksums.txt
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ needs.test.outputs.tag }}
+          name: "BNOS Print Service ${{ needs.test.outputs.tag }}"
+          generate_release_notes: true
+          files: artifacts/*
