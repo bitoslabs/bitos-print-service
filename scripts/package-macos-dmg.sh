@@ -22,6 +22,9 @@ swiftc -O -module-cache-path /tmp/swift-module-cache \
   -o "$APP_BUNDLE/Contents/MacOS/BNOSPrintTray"
 
 cp "$ROOT_DIR/target/release/print-daemon" "$APP_BUNDLE/Contents/MacOS/bnos-print-daemon"
+if [[ -f "$ROOT_DIR/apps/desktop/macos/Resources/AppIcon.icns" ]]; then
+  cp "$ROOT_DIR/apps/desktop/macos/Resources/AppIcon.icns" "$APP_BUNDLE/Contents/Resources/AppIcon.icns"
+fi
 
 cat > "$APP_BUNDLE/Contents/Info.plist" <<'PLIST'
 <?xml version="1.0" encoding="UTF-8"?>
@@ -34,6 +37,8 @@ cat > "$APP_BUNDLE/Contents/Info.plist" <<'PLIST'
   <string>space.bnos.print.desktop</string>
   <key>CFBundleExecutable</key>
   <string>BNOSPrintTray</string>
+  <key>CFBundleIconFile</key>
+  <string>AppIcon</string>
   <key>CFBundleVersion</key>
   <string>0.1.0</string>
   <key>CFBundleShortVersionString</key>

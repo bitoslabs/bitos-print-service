@@ -231,15 +231,19 @@ fn query_param(url: &str, key: &str) -> Option<String> {
     None
 }
 
+const LOGO_SVG: &str = include_str!("../../../public/bnos-print-bee-animated.svg");
+
 const SETTINGS_UI_HTML: &str = r#"<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link rel="icon" type="image/svg+xml" href="/logo.svg" />
   <title>BNOS Print Service — Settings</title>
   <style>
     body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; max-width: 680px; margin: 32px auto; padding: 0 16px; color: #111; }
-    h1 { font-size: 20px; margin-bottom: 4px; }
+    .header { display: flex; align-items: center; gap: 12px; margin-bottom: 4px; }
+    h1 { font-size: 20px; margin: 0; }
     .card { border: 1px solid #e5e7eb; border-radius: 10px; padding: 16px; margin: 16px 0; }
     .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
     input, select { padding: 8px 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px; }
@@ -252,7 +256,10 @@ const SETTINGS_UI_HTML: &str = r#"<!doctype html>
   </style>
 </head>
 <body>
-  <h1>BNOS &amp; BDGO OS Print Service</h1>
+  <div class="header">
+    <img src="/logo.svg" alt="BNOS Print" style="height:38px;width:auto" />
+    <h1>BNOS &amp; BDGO OS Print Service</h1>
+  </div>
   <div id="status">Loading printers...</div>
 
   <div class="card">
@@ -396,6 +403,11 @@ fn main() {
         match (req.method(), path.as_str()) {
             (&Method::Get, "/") => {
                 let _ = req.respond(html_response(SETTINGS_UI_HTML));
+            }
+            (&Method::Get, "/logo.svg") => {
+                let mut resp = Response::from_string(LOGO_SVG).with_status_code(StatusCode(200));
+                resp.add_header(Header::from_bytes("Content-Type", "image/svg+xml").expect("valid"));
+                let _ = req.respond(resp);
             }
             (&Method::Get, "/health") => {
                 let body = serde_json::json!({
