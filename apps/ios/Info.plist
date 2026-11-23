@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>CFBundleName</key>
+  <string>BNOS Print</string>
+  <key>CFBundleIdentifier</key>
+  <string>space.bnos.print</string>
+  <key>CFBundleURLTypes</key>
+  <array>
+    <dict>
+      <key>CFBundleURLName</key>
+      <string>space.bnos.print.deeplink</string>
+      <key>CFBundleURLSchemes</key>
+      <array>
+        <string>bnos-print</string>
+      </array>
+    </dict>
+  </array>
+  <key>NSLocalNetworkUsageDescription</key>
+  <string>BNOS Print needs local network access to send receipts to your LAN/WiFi thermal printer.</string>
+  <key>NSBluetoothAlwaysUsageDescription</key>
+  <string>BNOS Print uses Bluetooth to connect to portable thermal printers.</string>
+</dict>
+</plist>

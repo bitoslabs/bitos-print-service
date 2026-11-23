@@ -1,0 +1,19 @@
+{
+  "name": "@bnos/print-service-workspace",
+  "private": true,
+  "version": "0.1.0",
+  "description": "BNOS & BDGO OS Multi-Platform Native Print Service",
+  "packageManager": "pnpm@12.15.0",
+  "license": "MIT",
+  "scripts": {
+    "test": "node --test packages/web-sdk/test/sdk.test.ts",
+    "check": "./scripts/check.sh",
+    "dev:mock-printer": "node scripts/mock-printer.mjs",
+    "dev:daemon": "cargo run -p print-daemon",
+    "build:daemon": "cargo build --release -p print-daemon",
+    "build:daemon:win": "cargo build --release -p print-daemon --target x86_64-pc-windows-gnu",
+    "package:macos": "./scripts/package-macos-dmg.sh",
+    "build:apk": "cd apps/android && gradle assembleDebug",
+    "build:all": "./scripts/build-all.sh"
+  }
+}

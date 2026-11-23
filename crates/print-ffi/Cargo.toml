@@ -1,0 +1,12 @@
+[package]
+name = "print-ffi"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[lib]
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[dependencies]
+print-core = { path = "../print-core" }
+print-transport = { path = "../print-transport" }

@@ -1,0 +1,13 @@
+[package]
+name = "print-daemon"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+base64 = "0.22"
+print-core = { path = "../print-core" }
+print-transport = { path = "../print-transport" }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+tiny_http = "0.12"

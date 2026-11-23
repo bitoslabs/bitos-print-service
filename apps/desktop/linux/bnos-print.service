@@ -1,0 +1,11 @@
+[Unit]
+Description=BNOS & BDGO OS Native Print Daemon
+After=network.target
+
+[Service]
+ExecStart=/usr/local/bin/bnos-print-daemon
+Restart=on-failure
+RestartSec=3
+
+[Install]
+WantedBy=default.target

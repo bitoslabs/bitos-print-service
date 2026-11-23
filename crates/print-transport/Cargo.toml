@@ -1,0 +1,9 @@
+[package]
+name = "print-transport"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+print-core = { path = "../print-core" }
+serde = { version = "1.0", features = ["derive"] }
