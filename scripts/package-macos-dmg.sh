@@ -52,6 +52,9 @@ PLIST
 # Add Applications symlink for drag-and-drop installation
 ln -s /Applications "$STAGING_DIR/Applications"
 
+echo "==> Ad-hoc signing $APP_BUNDLE"
+codesign --force --deep --sign - "$APP_BUNDLE"
+
 echo "==> Creating $DMG_PATH"
 hdiutil create -volname "BNOS Print" -srcfolder "$STAGING_DIR" -ov -format UDZO "$DMG_PATH"
 rm -rf "$STAGING_DIR"
