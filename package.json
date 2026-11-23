@@ -1,7 +1,7 @@
 {
   "name": "@bnos/print-service-workspace",
   "private": true,
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "BNOS & BDGO OS Multi-Platform Native Print Service",
   "packageManager": "pnpm@12.15.0",
   "license": "MIT",
