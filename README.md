@@ -46,22 +46,25 @@ print-service/
 
 ## Quick Reference: Legacy vs. Native
 
-| Feature | `print-bridge.mjs` (Reference) | Native Print Service |
-| :--- | :--- | :--- |
-| **Runtime** | Node.js | Rust Core + Native Swift/Kotlin |
-| **Desktop OS** | macOS / Windows / Linux (manual CLI) | macOS / Windows / Linux (Daemon + Tray) |
-| **Mobile OS** | Not supported | iOS & Android via `bnos-print://` deeplink |
-| **Transports** | TCP `9100` only | TCP `9100`, USB, Serial, BLE/SPP, Spooler |
-| **Local Endpoint** | `http://127.0.0.1:3100/print` | `http://127.0.0.1:3100/print` + WebSocket + `/health` |
+| Feature            | `print-bridge.mjs` (Reference)       | Native Print Service                                  |
+| :----------------- | :----------------------------------- | :---------------------------------------------------- |
+| **Runtime**        | Node.js                              | Rust Core + Native Swift/Kotlin                       |
+| **Desktop OS**     | macOS / Windows / Linux (manual CLI) | macOS / Windows / Linux (Daemon + Tray)               |
+| **Mobile OS**      | Not supported                        | iOS & Android via `bnos-print://` deeplink            |
+| **Transports**     | TCP `9100` only                      | TCP `9100`, USB, Serial, BLE/SPP, Spooler             |
+| **Local Endpoint** | `http://127.0.0.1:3100/print`        | `http://127.0.0.1:3100/print` + WebSocket + `/health` |
 
 ## Documentation
 
 - [BNOS (`app.bnos.space`) Setup Guide](./docs/BNOS_SETUP.md)
+- [BNOS Svelte app integration guide](https://github.com/bitoslabs/bnos-svelte/blob/main/docs/THERMAL_PRINTING.md)
 - [Build, Run & Development Guide](./docs/BUILD_AND_RUN.md)
 - [Architecture](./docs/ARCHITECTURE.md)
 - [Protocol & Deeplink Specification](./docs/PROTOCOL_AND_DEEPLINK.md)
 - [Printer Support (Xprinter & ESC/POS)](./docs/PRINTER_SUPPORT.md)
 - [Platform Build & Deployment Guides](./docs/PLATFORM_GUIDES.md)
+
+**Source:** [github.com/bitoslabs/bitos-print-service](https://github.com/bitoslabs/bitos-print-service)
 
 ## Quick Start
 
